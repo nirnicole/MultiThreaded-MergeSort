@@ -8,7 +8,7 @@ public class ConcurrentSorter {
 	private ArrayList<int[]> sharedArr = new ArrayList<int[]>(0);		//shared pool
 	private int n;
 	private int numThreads;
-    private Object mutex = new Object();
+	private Object mutex = new Object();
 
 	//constructor
 	public ConcurrentSorter(int[] arr, int n, int m) {
@@ -26,49 +26,49 @@ public class ConcurrentSorter {
 	}//end of constructor
 	
 	//sort method itself
-    public synchronized void mergeSort() {
+   	 public synchronized void mergeSort() {
 
-        int threadID=1;
-        int[] arr1;
-        int[] arr2;
-        int rounds= (int) Math.ceil( Math.log(n) / Math.log(2 ) );		//here we can see we truly get O(nlogn) complexity, the rounds are logn and each round will cost n
-        ArrayList<mergindThread> threadArrList = new ArrayList<mergindThread>(0);
+		int threadID=1;
+		int[] arr1;
+		int[] arr2;
+		int rounds= (int) Math.ceil( Math.log(n) / Math.log(2 ) );		//here we can see we truly get O(nlogn) complexity, the rounds are logn and each round will cost n
+		ArrayList<mergindThread> threadArrList = new ArrayList<mergindThread>(0);
 
-        // A thread pool
-        ExecutorService executors = Executors.newFixedThreadPool( Math.min(numThreads,n) ); //limits number of running threads to m or n if m is grater
-		threadController tc; 
-        
-        System.out.println("-> starting Concurrent-Merge-Sort ");
-        System.out.println("-> expecting "+rounds + " rounds");
+		// A thread pool
+		ExecutorService executors = Executors.newFixedThreadPool( Math.min(numThreads,n) ); //limits number of running threads to m or n if m is grater
+			threadController tc; 
 
-        // sending the work to worker, taking 2 first arrays and adding the merge one at the end of the list to maintain sorted arrays sizes.
-        for(int i=0; i<rounds ; i++)	{
-        	
-        	System.out.println("\n-> starting round " + (i+1) + ":");
-        	tc = new threadController( sharedArr.size()/2);
-            
-        	//we mutex the shared pool so we dont mess it when multithreads are attampting add or remove from it
-        	synchronized(mutex) {
-            	while(sharedArr.size()>1)
-	            {
-	            	arr1 = sharedArr.remove(0);
-	            	arr2 = sharedArr.remove(0);
-	            	threadArrList.add( new mergindThread(arr1,arr2,threadID++, tc) );		//filling our thread list for this round
-	            }
-            }
-	        	
-        	//execute thread list with our thread-running-limit with the executer
-	        while(!threadArrList.isEmpty())
-	        	executors.execute(threadArrList.remove(0));
-	        	
-	            tc.waitForThreads();		 //wait() for this round thread-workers to finish with our costum thread contoller (gave up join() and chose to implement in low level for practice)
-        }
-        
- 
-        executors.shutdown();        // shutdown the thread pool.
-		System.out.println("\n-> ending Concurrent-Merge-Sort\n");
+		System.out.println("-> starting Concurrent-Merge-Sort ");
+		System.out.println("-> expecting "+rounds + " rounds");
 
-    }//end of method
+		// sending the work to worker, taking 2 first arrays and adding the merge one at the end of the list to maintain sorted arrays sizes.
+		for(int i=0; i<rounds ; i++)	{
+
+			System.out.println("\n-> starting round " + (i+1) + ":");
+			tc = new threadController( sharedArr.size()/2);
+
+			//we mutex the shared pool so we dont mess it when multithreads are attampting add or remove from it
+			synchronized(mutex) {
+			while(sharedArr.size()>1)
+			    {
+				arr1 = sharedArr.remove(0);
+				arr2 = sharedArr.remove(0);
+				threadArrList.add( new mergindThread(arr1,arr2,threadID++, tc) );		//filling our thread list for this round
+			    }
+		    }
+
+			//execute thread list with our thread-running-limit with the executer
+			while(!threadArrList.isEmpty())
+				executors.execute(threadArrList.remove(0));
+
+			    tc.waitForThreads();		 //wait() for this round thread-workers to finish with our costum thread contoller (gave up join() and chose to implement in low level for practice)
+		}
+
+
+		executors.shutdown();        // shutdown the thread pool.
+			System.out.println("\n-> ending Concurrent-Merge-Sort\n");
+
+	    }//end of method
 	
 	//our thread(worker-thread) class
 	private class mergindThread extends Thread {
@@ -107,29 +107,29 @@ public class ConcurrentSorter {
 	
 	
 
-    // Basic algorithm: it merges two consecutives sorted fragments
-    private static int[] merge(int[] arr1, int[] arr2) {
-        int[] mergedArr = new int[arr1.length+arr2.length];
-        int i = 0, j=0, k=0;
-        
-        //add to merged array the lowest of 2 first
-        while (i < arr1.length && j < arr2.length) {
-            if (arr1[i] <= arr2[j]) 
-            	mergedArr[k++] = arr1[i++];
-            else 
-            	mergedArr[k++] = arr2[j++];
-        }
-        
-        //if there are leftOvers (we can asume they are sorted after we divided the main array to a 1 fregment int and start from there)
-        if (i < arr1.length)
-            System.arraycopy(arr1, i, mergedArr, k, arr1.length - i);
-        if (j < arr2.length)
-            System.arraycopy(arr2, j, mergedArr, k, arr2.length - j);
-        
-        return mergedArr;
-    }//end of method
+	// Basic algorithm: it merges two consecutives sorted fragments
+	private static int[] merge(int[] arr1, int[] arr2) {
+	int[] mergedArr = new int[arr1.length+arr2.length];
+	int i = 0, j=0, k=0;
+
+	//add to merged array the lowest of 2 first
+	while (i < arr1.length && j < arr2.length) {
+	    if (arr1[i] <= arr2[j]) 
+		mergedArr[k++] = arr1[i++];
+	    else 
+		mergedArr[k++] = arr2[j++];
+	}
+
+	//if there are leftOvers (we can asume they are sorted after we divided the main array to a 1 fregment int and start from there)
+	if (i < arr1.length)
+	    System.arraycopy(arr1, i, mergedArr, k, arr1.length - i);
+	if (j < arr2.length)
+	    System.arraycopy(arr2, j, mergedArr, k, arr2.length - j);
+
+	return mergedArr;
+	}//end of method
     
-    //return the sorted array or null if not yet finished
+   	//return the sorted array or null if not yet finished
 	public int[] geSortedArray() {
 		if(sharedArr.size()>=1)
 			return sharedArr.get(sharedArr.size()-1);
