@@ -2,7 +2,7 @@
 school project merge-sort using multiple threads.
 
 
-# multithreading using:
+#Using:
 
 - executor: to maintain a fixed number of threads concurrently.
 
