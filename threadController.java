@@ -30,11 +30,7 @@ public class threadController {
 			}catch(InterruptedException e) 	{System.out.println("thread controller interupted while waiting.");}
 	}
 	
-	//getter
+	//getters
 	public synchronized int getCurrentRunning() 	{return currentRunning;}
-
-	public int getThreadsFinished() {
-		return threadsFinished;
-	}
-	
+	public int getThreadsFinished() {return threadsFinished;}
 }//end of class
